@@ -8,7 +8,7 @@ import os
 
 from .container import image, gpu
 
-app = modal.App("robot-comfy-api")
+app = modal.App("comfy-api-robot")
 
 from pydantic import BaseModel
 
