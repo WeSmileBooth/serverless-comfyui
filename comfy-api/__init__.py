@@ -79,6 +79,7 @@ class ComfyUI:
         blob = self.bucket.blob(f"{input.session_id}/before")
         if not blob.exists():
             raise Exception(f"Input image not found for session {input.session_id}")
+        print(f"✅ Found input image in {input.session_id}/before")  # Add this line
 
         bytes = self.bucket.blob(f"{input.session_id}/before").download_as_bytes()
 
