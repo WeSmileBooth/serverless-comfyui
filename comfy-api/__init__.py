@@ -27,7 +27,7 @@ with image.imports():
     image=image,
     container_idle_timeout=60 * 15,  # 15 minutes
     timeout=60 * 60,  # 1 hour
-    secrets=[modal.Secret.from_name("googlecloud-secret")],
+    secrets=[modal.Secret.from_name("googlecloud-secret-2")],
     mounts=[
         modal.Mount.from_local_file(
             local_path=(pathlib.Path(__file__).parent / "workflow_api.json"),
@@ -41,7 +41,7 @@ class ComfyUI:
         cred = credentials.Certificate(service_account_info)
         firebase = initialize_app(
             cred,
-            options={"storageBucket": "wesmile-photobooth.appspot.com"},
+            options={"storageBucket": "photobooth-robot.appspot.com"},
         )
         self.bucket = storage.bucket(app=firebase)
         self.db = firestore.client(app=firebase)
@@ -161,7 +161,7 @@ class ComfyUI:
     allow_concurrent_inputs=100,
     timeout=60 * 15,
     container_idle_timeout=60 * 15,  # 15 minutes
-    secrets=[modal.Secret.from_name("googlecloud-secret")],
+    secrets=[modal.Secret.from_name("googlecloud-secret-2")],
 )
 @modal.asgi_app()
 def api():
@@ -181,7 +181,7 @@ def api():
     cred = credentials.Certificate(service_account_info)
     firebase = initialize_app(
         cred,
-        options={"storageBucket": "wesmile-photobooth.appspot.com"},
+        options={"storageBucket": "photobooth-robot.appspot.com"},
     )
     bucket = storage.bucket(app=firebase)
 
