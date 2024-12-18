@@ -41,7 +41,7 @@ class ComfyUI:
         cred = credentials.Certificate(service_account_info)
         firebase = initialize_app(
             cred,
-            options={"storageBucket": "photobooth-robot.appspot.com"},
+            options={"storageBucket": "photobooth-robot.firebasestorage.app"},
         )
         self.bucket = storage.bucket(app=firebase)
         self.db = firestore.client(app=firebase)
@@ -181,7 +181,7 @@ def api():
     cred = credentials.Certificate(service_account_info)
     firebase = initialize_app(
         cred,
-        options={"storageBucket": "photobooth-robot.appspot.com"},
+        options={"storageBucket": "photobooth-robot.firebasestorage.app"},
     )
     bucket = storage.bucket(app=firebase)
 
