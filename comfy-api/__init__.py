@@ -74,6 +74,11 @@ class ComfyUI:
                 continue
             except:
                 pass
+            
+        # Added this new check
+        blob = self.bucket.blob(f"{input.session_id}/before")
+        if not blob.exists():
+            raise Exception(f"Input image not found for session {input.session_id}")
 
         bytes = self.bucket.blob(f"{input.session_id}/before").download_as_bytes()
 
@@ -93,17 +98,17 @@ class ComfyUI:
 
         prompt_id = result["prompt_id"]
 
-        doc_ref = self.db.collection("records").document(input.session_id)
+        # doc_ref = self.db.collection("records").document(input.session_id)
         # TODO: This is changed to update to update the document
-        doc_ref.update(
-            {
-                "created_at": firestore.SERVER_TIMESTAMP,
-                "prompt_id": prompt_id,
-                "prompt": input.prompt,
-                "status": "started",
-                "progress": 0,
-            }
-        )
+        # doc_ref.update(
+        #     {
+        #         "created_at": firestore.SERVER_TIMESTAMP,
+        #         "prompt_id": prompt_id,
+        #         "prompt": input.prompt,
+        #         "status": "started",
+        #         "progress": 0,
+        #     }
+        # )
 
         ws = websocket.WebSocket()
         while True:
@@ -125,7 +130,7 @@ class ComfyUI:
 
                     if data.get("prompt_id") and data.get("prompt_id") == prompt_id:
                         if data["node"] is None:
-                            doc_ref.update({"status": "executed"})
+                            # doc_ref.update({"status": "executed"})
                             break
                         else:
                             current_node = data["node"]
@@ -138,7 +143,8 @@ class ComfyUI:
                         and data.get("prompt_id") == prompt_id
                         and data["node"] == "11"
                     ):
-                        doc_ref.update({"progress": data["value"], "status": "pending"})
+                       # doc_ref.update({"progress": data["value"], "status": "pending"})
+                       print (f"Progress: {data['value']}")
             else:
                 if (
                     workflow[current_node]
@@ -149,7 +155,7 @@ class ComfyUI:
         self.bucket.blob(f"{input.session_id}/after").upload_from_string(
             images_output, content_type="image/png"
         )
-        doc_ref.update({"status": "completed"})
+        #doc_ref.update({"status": "completed"})
         result = base64.b64encode(images_output).decode()
 
         return f"data:image/png;base64,{result}"
