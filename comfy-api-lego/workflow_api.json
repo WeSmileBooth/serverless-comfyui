@@ -1,0 +1,248 @@
+{
+  "1": {
+    "inputs": {
+      "image": "ComfyUI_temp_yspnh_00026_.png",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "5": {
+    "inputs": {
+      "ckpt_name": "sdxl/dreamshaperXL_v21TurboDPMSDE.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Load Checkpoint"
+    }
+  },
+  "9": {
+    "inputs": {
+      "text": "under the water, ocean, Lego Creators, Lego Seaweed background",
+      "clip": ["73", 1]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "10": {
+    "inputs": {
+      "text": "low quality, ugly, covered face, masked face, blurred background, people in background, nsfw, naked, sexy",
+      "clip": ["5", 1]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Prompt)"
+    }
+  },
+  "11": {
+    "inputs": {
+      "seed": 1095149207557912,
+      "steps": 22,
+      "cfg": 5.5,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "normal",
+      "denoise": 1,
+      "model": ["65", 0],
+      "positive": ["69", 0],
+      "negative": ["69", 1],
+      "latent_image": ["12", 0]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "12": {
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 2
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "Empty Latent Image"
+    }
+  },
+  "15": {
+    "inputs": {
+      "samples": ["11", 0],
+      "vae": ["5", 2]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "16": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": ["64", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "47": {
+    "inputs": {
+      "images": ["62", 0]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "59": {
+    "inputs": {
+      "ipadapter_file": "sdxl/ip-adapter_sdxl.safetensors"
+    },
+    "class_type": "IPAdapterModelLoader",
+    "_meta": {
+      "title": "IPAdapter Model Loader"
+    }
+  },
+  "62": {
+    "inputs": {
+      "a": 6.283185307179586,
+      "bg_threshold": 0.1,
+      "resolution": 1024,
+      "image": ["1", 0]
+    },
+    "class_type": "MiDaS-DepthMapPreprocessor",
+    "_meta": {
+      "title": "MiDaS Depth Map"
+    }
+  },
+  "63": {
+    "inputs": {
+      "input_faces_order": "left-right",
+      "input_faces_index": "0,1,2,3,4,5",
+      "detect_gender_input": "no",
+      "source_faces_order": "left-right",
+      "source_faces_index": "0,1,2,3,4,5",
+      "detect_gender_source": "no",
+      "console_log_level": 1
+    },
+    "class_type": "ReActorOptions",
+    "_meta": {
+      "title": "ReActor 🌌 Options"
+    }
+  },
+  "64": {
+    "inputs": {
+      "enabled": true,
+      "swap_model": "inswapper_128.onnx",
+      "facedetection": "YOLOv5l",
+      "face_restore_model": "codeformer.pth",
+      "face_restore_visibility": 1,
+      "codeformer_weight": 0.5,
+      "input_image": ["15", 0],
+      "source_image": ["1", 0],
+      "options": ["63", 0]
+    },
+    "class_type": "ReActorFaceSwapOpt",
+    "_meta": {
+      "title": "ReActor 🌌 Fast Face Swap [OPTIONS]"
+    }
+  },
+  "65": {
+    "inputs": {
+      "weight": 0.6,
+      "weight_type": "composition",
+      "combine_embeds": "concat",
+      "start_at": 0,
+      "end_at": 1,
+      "embeds_scaling": "V only",
+      "model": ["73", 0],
+      "ipadapter": ["59", 0],
+      "image": ["1", 0],
+      "image_negative": ["70", 0],
+      "clip_vision": ["66", 0]
+    },
+    "class_type": "IPAdapterAdvanced",
+    "_meta": {
+      "title": "IPAdapter Advanced"
+    }
+  },
+  "66": {
+    "inputs": {
+      "clip_name": "CLIP-ViT-bigG-14-laion2B-39B-b160k.safetensors"
+    },
+    "class_type": "CLIPVisionLoader",
+    "_meta": {
+      "title": "Load CLIP Vision"
+    }
+  },
+  "68": {
+    "inputs": {
+      "switch_1": "On",
+      "controlnet_1": "sdxl/TTPLANET_Controlnet_Tile_realistic_v1_fp16.safetensors",
+      "controlnet_strength_1": 0.5,
+      "start_percent_1": 0,
+      "end_percent_1": 0.6,
+      "switch_2": "On",
+      "controlnet_2": "sdxl/depth-zoe-xl-v1.0-controlnet.safetensors",
+      "controlnet_strength_2": 0.6,
+      "start_percent_2": 0,
+      "end_percent_2": 0.8,
+      "switch_3": "Off",
+      "controlnet_3": "None",
+      "controlnet_strength_3": 1,
+      "start_percent_3": 0,
+      "end_percent_3": 1,
+      "image_2": ["62", 0]
+    },
+    "class_type": "CR Multi-ControlNet Stack",
+    "_meta": {
+      "title": "🕹️ CR Multi-ControlNet Stack"
+    }
+  },
+  "69": {
+    "inputs": {
+      "positive": ["9", 0],
+      "negative": ["10", 0],
+      "cnet_stack": ["68", 0]
+    },
+    "class_type": "Apply ControlNet Stack",
+    "_meta": {
+      "title": "Apply ControlNet Stack"
+    }
+  },
+  "70": {
+    "inputs": {
+      "pyrUp_iters": 1,
+      "resolution": 1024,
+      "image": ["1", 0]
+    },
+    "class_type": "TilePreprocessor",
+    "_meta": {
+      "title": "Tile"
+    }
+  },
+  "71": {
+    "inputs": {
+      "images": ["70", 0]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "73": {
+    "inputs": {
+      "lora_name": "Lego_XL_v2.1.safetensors",
+      "strength_model": 0.6,
+      "strength_clip": 1,
+      "model": ["5", 0],
+      "clip": ["5", 1]
+    },
+    "class_type": "LoraLoader",
+    "_meta": {
+      "title": "Load LoRA"
+    }
+  }
+}
