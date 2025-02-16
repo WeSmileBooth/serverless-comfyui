@@ -10,7 +10,7 @@ import datetime
 from .container import image, gpu
 from pydantic import BaseModel
 
-app = modal.App("comfy-api-robot")
+app = modal.App("comfy-api-z")
 
 
 class InferModel(BaseModel):
@@ -24,7 +24,7 @@ class JobResult(BaseModel):
 
 
 with image.imports():
-    from firebase_admin import credentials, initialize_app, storage, firestore
+    from firebase_admin import credentials, initialize_app, storage
 
 
 @app.cls(
@@ -32,7 +32,7 @@ with image.imports():
     image=image,
     container_idle_timeout=60 * 15,  # 15 minutes
     timeout=60 * 60,  # 1 hour
-    secrets=[modal.Secret.from_name("googlecloud-secret")],
+    secrets=[modal.Secret.from_name("googlecloud-secret-4")],
     mounts=[
         modal.Mount.from_local_file(
             local_path=(pathlib.Path(__file__).parent / "workflow_api.json"),
@@ -46,10 +46,9 @@ class ComfyUI:
         cred = credentials.Certificate(service_account_info)
         firebase = initialize_app(
             cred,
-            options={"storageBucket": "photobooth-robot.appspot.com"},
+            options={"storageBucket": "photobooth-robot.firebasestorage.app"},
         )
         self.bucket = storage.bucket(app=firebase)
-        self.db = firestore.client(app=firebase)
 
         self.workflow_json = json.loads(
             (pathlib.Path(__file__).parent / "workflow_api.json").read_text()
@@ -98,18 +97,6 @@ class ComfyUI:
 
         prompt_id = result["prompt_id"]
 
-        doc_ref = self.db.collection("records").document(input.session_id)
-        # TODO: This is changed to update to update the document
-        doc_ref.update(
-            {
-                "created_at": firestore.SERVER_TIMESTAMP,
-                "prompt_id": prompt_id,
-                "prompt": input.prompt,
-                "status": "started",
-                "progress": 0,
-            }
-        )
-
         ws = websocket.WebSocket()
         while True:
             try:
@@ -130,20 +117,9 @@ class ComfyUI:
 
                     if data.get("prompt_id") and data.get("prompt_id") == prompt_id:
                         if data["node"] is None:
-                            doc_ref.update({"status": "executed"})
                             break
                         else:
                             current_node = data["node"]
-
-                elif message["type"] == "progress":
-                    data = message["data"]
-
-                    if (
-                        data.get("prompt_id")
-                        and data.get("prompt_id") == prompt_id
-                        and data["node"] == "11"
-                    ):
-                        doc_ref.update({"progress": data["value"], "status": "pending"})
             else:
                 if (
                     workflow[current_node]
@@ -154,7 +130,7 @@ class ComfyUI:
         self.bucket.blob(f"{input.session_id}/after").upload_from_string(
             images_output, content_type="image/png"
         )
-        doc_ref.update({"status": "completed"})
+
         result = base64.b64encode(images_output).decode()
 
         return f"data:image/png;base64,{result}"
@@ -166,7 +142,7 @@ class ComfyUI:
     allow_concurrent_inputs=100,
     timeout=60 * 15,
     container_idle_timeout=60 * 15,  # 15 minutes
-    secrets=[modal.Secret.from_name("googlecloud-secret")],
+    secrets=[modal.Secret.from_name("googlecloud-secret-4")],
 )
 @modal.asgi_app()
 def api():
@@ -186,11 +162,11 @@ def api():
     cred = credentials.Certificate(service_account_info)
     firebase = initialize_app(
         cred,
-        options={"storageBucket": "photobooth-robot.appspot.com"},
+        options={"storageBucket": "photobooth-robot.firebasestorage.app"},
     )
     bucket = storage.bucket(app=firebase)
 
-    ComfyUI = modal.Cls.lookup("comfy-api-robot", "ComfyUI")
+    ComfyUI = modal.Cls.lookup("comfy-api-z", "ComfyUI")
     comfyui = ComfyUI()
 
     @fastapi.get("/blob/{blob_name:path}")
